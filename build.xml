@@ -1,0 +1,186 @@
+﻿<!--
+  AID - Status Service Web .                                 
+  Copyright (c) 2001-2003 Syni Ltd.          
+  All rights reserved.
+  author: badqiu
+  
+{ $Id: build.xml,v 1.4 2007/05/15 07:48:36 baichao_qiu Exp $ }
+-->
+
+<!-- ======================================================================= -->
+<!-- AID build file -->
+<!-- ======================================================================= -->
+<project name="xsqlbuilder" basedir="." default="war">
+	<tstamp></tstamp>
+	
+	<property environment="env"/>
+	<property file="build.properties" />
+	<!--版本控制信息-->
+	<property name="version.message" value="version:${label} build:${cctimestamp}"/>
+	<property name="version.file" value="version.txt"></property>
+	
+	<target name="generate_version">
+		<echo file="${dir.src.web}/${version.file}" append="no" message="${version.message}"/>
+	</target>
+	
+	<path id="lib.classpath">
+		<fileset dir="${dir.lib}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="xdoclet.classpath">
+		<fileset dir="${xdoclet.home}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="dirs.src">
+	  	<pathelement path="src"/>
+	</path>
+	
+	<target name="prepare">
+		<echo message="tomcat.home=${tomcat.home}"/>
+		<mkdir dir="${dir.dist}"/>
+		<mkdir dir="${dir.dist.java}"/>
+		<mkdir dir="${dir.dist.test}"/>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${dir.dist}"></delete>
+	</target>
+			
+	<target name="i18n">
+		<native2ascii src="${dir.src.java}" includes="ApplicationResources.properties" ext="_zh_CN.properties" dest="${dir.dist.java}" encoding="GB2312" />
+	</target>
+	
+	<target name="war" depends="compile-src">
+		<war destfile="${dir.dist}/${context.path}.war" webxml="${dir.src.web}/WEB-INF/web.xml" >
+			<classes dir="${dir.dist.java}" includes="**/*.*"></classes>
+			<fileset dir="${dir.src.web}" includes="**/*" defaultexcludes="false" >
+				<exclude name="**/.svn/**/*.*"/>
+				<exclude name="**/CVS/**/*.*"/>
+				<exclude name="WEB-INF/classes/**/*.*"/>
+			</fileset>
+		</war>
+	</target>
+
+	<target name="compile-src" depends="prepare">
+		
+		<javac 
+			nowarn="yes" target="${compile.version}" source="${compile.version}" encoding="UTF-8"
+			destdir="${dir.dist.java}"
+			classpathref="lib.classpath">
+			  <src refid="dirs.src"/>
+		</javac>
+
+		<copy todir="${dir.dist.java}">
+			<fileset dir="src" excludes="**/*.java"/>
+		</copy>
+		
+	</target>
+	
+	<target name="compile-test" depends="compile-src">
+		
+		<javac srcdir="${dir.src.test}" destdir="${dir.dist.test}" 
+			includes="**/*.*" defaultexcludes="false" target="${compile.version}" 
+			source="${compile.version}" encoding="UTF-8">
+			<classpath>
+				<path refid="lib.classpath"/>
+				<path path="${dir.dist.java}"/>
+			</classpath>
+		</javac>
+		<copy todir="${dir.dist.test}">
+			<fileset dir="${dir.src.test}" excludes="**/*.java"></fileset>
+		</copy>
+	</target>
+	
+	<target name="compile-all" description="compile java src and java test source">
+		<antcall target="compile-src"/>
+		<antcall target="compile-test"/>
+	</target>
+		
+	<target name="jar" depends="test">
+		<jar jarfile="${dir.dist}/${jar.name}">
+			<fileset dir="${dir.dist.java}">
+				<include name="META-INF/**"/>
+				<include name="**"/>
+			</fileset>
+		</jar>
+	</target>
+	
+	<!-- 运行前请将junit.jar加入ant runtime classpath
+	      打开Window>>Perferences>>Ant>>Runtime>>Classpath里加入junit.jar-->
+	<target name="test" depends="compile-all">
+		<delete dir="${dir.test.report}" failonerror="no"/>
+		<mkdir dir="${dir.test.report}"/>
+		<junit printsummary="yes" fork="yes" haltonfailure="yes" dir="${basedir}"  maxmemory="256M">
+			
+			<classpath>
+				<path refid="lib.classpath"/>
+				<pathelement path="${dir.dist.java}"/>
+				<pathelement path="${dir.dist.test}"/>
+			</classpath>
+				
+			<formatter type="plain"/>
+			<formatter type="xml"/>
+			<formatter type="brief"/>
+			
+			<batchtest todir="${dir.test.report}" haltonfailure="no">
+				<fileset dir="${dir.dist.test}">
+					<include name="**/*Test.class"/>
+				</fileset>
+			</batchtest>
+		</junit>
+		
+		<antcall target="test-report"></antcall>
+	</target>
+	
+	
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: test-report                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="test-report">
+		<junitreport todir="${dir.test.report}">
+					<fileset dir="${dir.test.report}">
+						<include name="TEST-*.xml"/>
+					</fileset>
+					<report format="frames" todir="${dir.test.report}"/>
+		</junitreport>  
+    </target>
+
+	<target name="javadoc">
+		<javadoc sourcepath="${dir.src.java}" destdir="${dir.javadoc}" windowtitle="XsqlBuilder"
+			source="1.4" access="protected" author="true" version="true" use="true"
+			defaultexcludes="true" encoding="UTF-8"
+			header=''>
+			
+			<packageset dir="${dir.src.java}">
+				<include name="javacommon/**"/>
+			</packageset>
+			
+			<doctitle><![CDATA[<h1>XsqlBuilder</h1>]]></doctitle>
+			<bottom>XsqlBuilder</bottom>
+		</javadoc>
+	</target>
+
+	<target name="zip" depends="jar,javadoc">
+		<zip zipfile="${dir.dist}/${ant.project.name}.zip">
+			<zipfileset dir="." prefix="${ant.project.name}">
+				<include name="src/**"/>
+				<include name="test/**"/>
+				<include name="lib/**"/>
+				<include name="dist/*.jar"/>
+				<include name="${dir.javadoc}/**"/>
+			</zipfileset>
+		</zip>
+	</target>
+
+	<target name="cc_main">
+		<antcall target="clean"></antcall>
+		<antcall target="generate_version"></antcall>
+		<antcall target="war"></antcall>
+		<ant inheritall="false" antfile="../cbsms-cbc/build.xml" target="cc_main"/>
+	</target>
+	
+</project>
