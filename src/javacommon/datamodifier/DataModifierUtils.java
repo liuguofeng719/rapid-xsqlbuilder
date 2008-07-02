@@ -19,6 +19,23 @@ import javacommon.datamodifier.modifier.TimestampDataModifier;
 
 /**
  * 工具类,将DataModifierBean的相关方法static化,并注册默认的修饰符
+ * <pre>
+		default = new DefaultDataModifier()
+		boolean = new BooleanDataModifier()
+		string = new StringDataModifier()
+		byte = new ByteDataModifier()
+		short = new ShortDataModifier()
+		int = new IntegerDataModifier()
+		long = new LongDataModifier()
+		float = new FloatDataModifier()
+		double = new DoubleDataModifier()
+		BigInteger = new BigIntegerDataModifier()
+		BigDecimal = new BigDecimalDataModifier()
+		date = new DateDataModifier()
+		sqldate = new SqlDateDataModifier()
+		sqltime = new SqlTimeDataModifier()
+		timestamp = new TimestampDataModifier()
+ * </pre>
  * @author badqiu
  *
  */

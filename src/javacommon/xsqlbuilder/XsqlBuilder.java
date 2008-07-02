@@ -13,25 +13,49 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * 用于动态构造sql语句
- * 例如如下sql语名:
+ * 用于动态构造sql语句,与SafeSqlProcesser集成提供防止sql注入攻击,与DataModifier集成完成数据类型的转换
+ * 动态构造sql示例:
  * <pre>
 	String xsql = "select * from user where 1=1
-		/~ and username = {username}~/
-		/~ and password = {password}~
-		/~ and age = [age]~/"
+		/~ and username = {username} ~/
+		/~ and password = {password} ~/
+		/~ and age = [age] ~/"
+		/~ and sex = [sex] ~/"
+		 
+	<br/>
+	
 	Map filters = new HashMap();
 	filters.put("username", "badqiu");
 	filters.put("age", "12");
+	filters.put("sex", "");
+	
+	<br/>
+	
 	XsqlFilterResult result = xsqlBuilder.applyFilters(xsql,filters);
-	最后result.xsql将会等于
+	<br/>
+	
+	结果result.getXsql()将会等于
 	select * from user where 1=1 and username={username} and age=12
-	而<font color=red>and password = {password}</font>由于在filters中不存在而没有被构造出来
+	而<font color=red>/~ and password = {password} ~/"</font>这一段由于在filters中password不存在而没有被构造出来
+	<font color=red>/~ and sex = [sex] ~/</font>由于sex的值为空串也没有被构造出来
+	<br/>
+	Map acceptedFilters = result.getAcceptedFilters();
+	会等于:
+	{username=badqiu}
+	
+	<br/>
 	相关符号介绍:
-	/~ segment... ~/ 为一个代码块
-	{key} 过滤器的key 
+	/~ segment... ~/ 为一个条件代码块
+	{key} 过滤器中起标记作用的key,作为后面可以替换为sql的?,或是hql的:username标记
 	[key] 将直接替换为key value
  * </pre>
+ * 
+ * <pre>
+ * 数据类型转换示例:
+ * select * from user where and 1=1 /~ age={age?int} ~/
+ * 将会将Map filters中key=age的值转换为int类型
+ * </pre>
+ * 
  * @author badqiu
  *
  */
@@ -58,6 +82,9 @@ public class XsqlBuilder {
 		setSafeSqlProcesser(safeSqlProcesser);
 	}
 	
+	/** 
+	 * 是否移除空字符串,默认为true
+	 **/
 	public boolean isRemoveEmptyString() {
 		return isRemoveEmptyString;
 	}
@@ -150,7 +177,7 @@ public class XsqlBuilder {
 	 * @see #applyFilters(String, Map)
 	 */
 	private XsqlFilterResult applyFilters(StringBuffer xsql, Map filters) {
-		Map acceptedFilters = new LinkedHashMap();
+		LinkedHashMap acceptedFilters = new LinkedHashMap();
 		for (int i = 0, end = 0, start = xsql.indexOf("/~"); ((start = xsql.indexOf("/~", end)) >= 0); i++) {
 			end = xsql.indexOf("~/", start);
 			KeyMetaDatas metadatas = getKeyMetaDatas(xsql, start, end);

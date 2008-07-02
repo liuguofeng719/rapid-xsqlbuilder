@@ -172,6 +172,10 @@
 				<include name="lib/**"/>
 				<include name="dist/*.jar"/>
 				<include name="${dir.javadoc}/**"/>
+				<include name="readme.txt"/>
+				<include name="Licence.txt"/>
+				<include name="build.xml"/>
+				<include name="build.properties"/>
 			</zipfileset>
 		</zip>
 	</target>

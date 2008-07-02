@@ -161,7 +161,7 @@ public class XsqlBuilderTest extends TestCase {
 		assertEquals(result,"select * from user where 1=1 and username = ? and pwd = '123' and age = ?");
 	}
 	
-	public void test() {
+	public void testGenerateSql2() {
 		Map filters = new HashMap();
 		String sql = "select * from user /~where username=[username]~/";
 		String result = builder.generateSql(sql, filters).getXsql();
