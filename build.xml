@@ -165,7 +165,7 @@
 	</target>
 
 	<target name="zip" depends="jar,javadoc">
-		<zip zipfile="${dir.dist}/${ant.project.name}.zip">
+		<zip zipfile="${dir.dist}/${zip.name}">
 			<zipfileset dir="." prefix="${ant.project.name}">
 				<include name="src/**"/>
 				<include name="test/**"/>
