@@ -220,7 +220,7 @@ public class XsqlBuilder {
 		for(int n = 0; n < replaceKeys.size(); n++) {
 			String dataModifierExpression = (String)replaceKeys.get(n);
 			String key = DataModifierUtils.getModifyVariable(dataModifierExpression);
-			String value = (String)DataModifierUtils.modify(dataModifierExpression, filters.get(key));
+			String value = DataModifierUtils.modify(dataModifierExpression, filters.get(key)).toString();
 			value = safeSqlProcesser.process(value);
 			segment = StringUtils.replace(segment, "["+dataModifierExpression+"]", value);
 		}
