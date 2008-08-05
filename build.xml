@@ -164,7 +164,7 @@
 		</javadoc>
 	</target>
 
-	<target name="zip" depends="jar,javadoc">
+	<target name="zip" depends="clean,jar,javadoc">
 		<zip zipfile="${dir.dist}/${zip.name}">
 			<zipfileset dir="." prefix="${ant.project.name}">
 				<include name="src/**"/>
@@ -173,7 +173,7 @@
 				<include name="dist/*.jar"/>
 				<include name="${dir.javadoc}/**"/>
 				<include name="readme.txt"/>
-				<include name="Licence.txt"/>
+				<include name="License.txt"/>
 				<include name="build.xml"/>
 				<include name="build.properties"/>
 			</zipfileset>
