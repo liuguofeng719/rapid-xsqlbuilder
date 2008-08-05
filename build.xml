@@ -173,7 +173,7 @@
 				<include name="dist/*.jar"/>
 				<include name="${dir.javadoc}/**"/>
 				<include name="readme.txt"/>
-				<include name="License.txt"/>
+				<include name="MIT-LICENSE.txt"/>
 				<include name="build.xml"/>
 				<include name="build.properties"/>
 			</zipfileset>
