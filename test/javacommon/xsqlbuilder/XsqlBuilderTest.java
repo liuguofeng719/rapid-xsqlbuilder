@@ -220,4 +220,22 @@ public class XsqlBuilderTest extends TestCase {
 		assertEquals("select * from user where name='bad''\\\\qiu'",result3.getXsql());
 	}
 	
+	public void testDemo() {
+		// 清晰的sql语句,/~ ~/为一个语法块
+		 String sql= "select * from user where 1=1 " 
+		         + "/~ and username = {username} ~/"   
+		         + "/~ and password = {password} ~/";   
+		 
+		 // filters为参数
+		 Map filters = new HashMap();   
+		 filters.put("username", "badqiu"); 
+		 filters.put("sex", "F");  
+		 
+		 XsqlFilterResult result = new XsqlBuilder().generateHql(sql,filters);
+		 
+		 assertTrue(result.getAcceptedFilters().containsKey("username"));
+		 assertFalse(result.getAcceptedFilters().containsKey("sex"));
+		 assertEquals("select * from user where 1=1  and username = :username ", result.getXsql());
+	}
+	
 }
