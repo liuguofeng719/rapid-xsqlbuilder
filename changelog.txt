@@ -1,2 +1,11 @@
+----------------------
+v1.0.2
+  增加IbatisStyleXsqlBuilder,支持类似Ibatis的语法:
+		String sql = "select * from user where 1=1"
+			+"/~ and username = #username#~/"
+			+"/~ and pwd = '$password$'~/"
+  
+  
+----------------------
 v1.0.1
   将中括号的内容自动进行toString转换
