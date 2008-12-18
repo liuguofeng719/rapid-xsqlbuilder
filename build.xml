@@ -10,7 +10,7 @@
 <!-- ======================================================================= -->
 <!-- AID build file -->
 <!-- ======================================================================= -->
-<project name="xsqlbuilder" basedir="." default="war">
+<project name="xsqlbuilder" basedir="." default="zip">
 	<tstamp></tstamp>
 	
 	<property environment="env"/>
