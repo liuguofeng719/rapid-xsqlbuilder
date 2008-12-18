@@ -152,7 +152,7 @@
 	<target name="javadoc">
 		<javadoc sourcepath="${dir.src.java}" destdir="${dir.javadoc}" windowtitle="XsqlBuilder"
 			source="1.4" access="protected" author="true" version="true" use="true"
-			defaultexcludes="true" encoding="UTF-8"
+			defaultexcludes="true" encoding="UTF-8" classpathref="lib.classpath"
 			header=''>
 			
 			<packageset dir="${dir.src.java}">
