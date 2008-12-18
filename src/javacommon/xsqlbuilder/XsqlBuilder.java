@@ -61,6 +61,18 @@ import org.apache.commons.logging.LogFactory;
  */
 public class XsqlBuilder {
 
+//	private static final String MARK_KEY_START_CHAR = "{";
+//	private static final String MARK_KEY_END_CHAR = "}";
+//	
+//	private static final String REPLACE_KEY_START_CHAR = "[";
+//	private static final String REPLACE_KEY_END_CHAR = "]";
+
+	protected String markKeyStartChar = "{";
+	protected String markKeyEndChar = "}";
+	
+	protected String replaceKeyStartChar = "[";
+	protected String replaceKeyEndChar = "]";
+	
 	final static Log logger = LogFactory.getLog(XsqlBuilder.class);
 	
 	private boolean isRemoveEmptyString = true;
@@ -126,7 +138,7 @@ public class XsqlBuilder {
         String resultHql = sfr.getXsql();
 		for(Iterator it = sfr.getAcceptedFilters().keySet().iterator();it.hasNext();){
 			Object key = it.next();
-			resultHql = StringUtils.replace(resultHql, "{"+key+"}", ":"+key);
+			resultHql = StringUtils.replace(resultHql, markKeyStartChar+key+markKeyEndChar, ":"+key);
 		}
         
 		return new XsqlFilterResult(resultHql,sfr.getAcceptedFilters());
@@ -139,10 +151,10 @@ public class XsqlBuilder {
 	 * @return 如果acceptedFilters存在{username}的key，则返回select * from user where username=str
 	 * 		否则没有影响，直接返回xsql
 	 */
-	public static String replaceKeyMaskWithString(String xsql, Map acceptedFilters,String str) {
+	public String replaceKeyMaskWithString(String xsql, Map acceptedFilters,String str) {
 		for(Iterator it = acceptedFilters.keySet().iterator();it.hasNext();){
 			Object key = it.next();
-			xsql = StringUtils.replace(xsql, "{"+key+"}", str);
+			xsql = StringUtils.replace(xsql, markKeyStartChar+key+markKeyEndChar, str);
 		}
 		return xsql;
 	}
@@ -154,10 +166,10 @@ public class XsqlBuilder {
 	 * @return 如果acceptedFilters存在{username}相对应的key=username的值，则返回select * from user where username=keyvalue
 	 * 		否则没有影响，直接返回xsql
 	 */
-	public static String replaceKeyMaskWithKeyValue(String xsql, Map acceptedFilters) {
+	public String replaceKeyMaskWithKeyValue(String xsql, Map acceptedFilters) {
 		for(Iterator it = acceptedFilters.keySet().iterator();it.hasNext();){
 			Object key = it.next();
-			xsql = StringUtils.replace(xsql, "{"+key+"}", acceptedFilters.get(key).toString());
+			xsql = StringUtils.replace(xsql, markKeyStartChar+key+markKeyEndChar, acceptedFilters.get(key).toString());
 		}
 		return xsql;
 	}
@@ -211,7 +223,7 @@ public class XsqlBuilder {
 			String key = DataModifierUtils.getModifyVariable(dataModifierExpression);
 			Object value = DataModifierUtils.modify(dataModifierExpression, filters.get(key));
 			acceptedFilters.put(key, value);
-			segment = StringUtils.replace(segment, "{"+dataModifierExpression+"}", "{"+key+"}");
+			segment = StringUtils.replace(segment, markKeyStartChar+dataModifierExpression+markKeyEndChar, markKeyStartChar+key+markKeyEndChar);
 		}
 		return segment;
 	}
@@ -222,7 +234,7 @@ public class XsqlBuilder {
 			String key = DataModifierUtils.getModifyVariable(dataModifierExpression);
 			String value = DataModifierUtils.modify(dataModifierExpression, filters.get(key)).toString();
 			value = safeSqlProcesser.process(value);
-			segment = StringUtils.replace(segment, "["+dataModifierExpression+"]", value);
+			segment = StringUtils.replace(segment, replaceKeyStartChar+dataModifierExpression+replaceKeyEndChar, value);
 		}
 		return segment;
 	}
@@ -240,8 +252,8 @@ public class XsqlBuilder {
 	}
 	
 	KeyMetaDatas getKeyMetaDatas(StringBuffer xsql,int start,int end) {
-		List markKeys = getKeys(xsql, start, end,"{","}");
-		List replaceKeys = getKeys(xsql, start, end, "[", "]");
+		List markKeys = getKeys(xsql, start, end,markKeyStartChar,markKeyEndChar);
+		List replaceKeys = getKeys(xsql, start, end, replaceKeyStartChar, replaceKeyEndChar);
 		return new KeyMetaDatas(markKeys,replaceKeys);
 	} 
 	
@@ -253,7 +265,7 @@ public class XsqlBuilder {
 			keyStart = xsql.indexOf(keyPrifix,keyStart);
 			if(keyStart > end || keyStart < 0)
 				break;
-			keyEnd = xsql.indexOf(keySuffix,keyStart);
+			keyEnd = xsql.indexOf(keySuffix,keyStart+1);
 			if(keyEnd > end  || keyEnd <0)
 				break;
 			String key = xsql.substring(keyStart+1,keyEnd);
