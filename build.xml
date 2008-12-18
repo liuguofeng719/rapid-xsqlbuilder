@@ -166,10 +166,9 @@
 
 	<target name="zip" depends="clean,jar,javadoc">
 		<zip zipfile="${dir.dist}/${zip.name}">
-			<zipfileset dir="." prefix="${ant.project.name}">
+			<zipfileset dir="." prefix="${ant.project.name}-${project.version}">
 				<include name="src/**"/>
 				<include name="test/**"/>
-				<include name="lib/**"/>
 				<include name="dist/*.jar"/>
 				<include name="${dir.javadoc}/**"/>
 				<include name="readme.txt"/>
