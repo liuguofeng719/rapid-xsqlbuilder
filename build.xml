@@ -181,9 +181,7 @@
 
 	<target name="cc_main">
 		<antcall target="clean"></antcall>
-		<antcall target="generate_version"></antcall>
-		<antcall target="war"></antcall>
-		<ant inheritall="false" antfile="../cbsms-cbc/build.xml" target="cc_main"/>
+		<antcall target="zip"></antcall>
 	</target>
 	
 </project>
