@@ -193,7 +193,6 @@ public class XsqlBuilder {
 		for (int i = 0, end = 0, start = xsql.indexOf("/~"); ((start = xsql.indexOf("/~", end)) >= 0); i++) {
 			end = xsql.indexOf("~/", start);
 			KeyMetaDatas metadatas = getKeyMetaDatas(xsql, start, end);
-			
 			if(metadatas.markKeys.isEmpty() && metadatas.replaceKeys.isEmpty()) 
 				throw new IllegalArgumentException("Not key found in segment="+xsql.substring(start, end+2));
 			
@@ -262,15 +261,20 @@ public class XsqlBuilder {
 		int keyStart = start;
 		int keyEnd = keyStart;
 		while(true) {
+			//get keyStart
 			keyStart = xsql.indexOf(keyPrifix,keyStart);
 			if(keyStart > end || keyStart < 0)
 				break;
+			
+			//get keyEnd
 			keyEnd = xsql.indexOf(keySuffix,keyStart+1);
 			if(keyEnd > end  || keyEnd <0)
 				break;
+			
+			//get key string
 			String key = xsql.substring(keyStart+1,keyEnd);
 			results.add(key);
-			keyStart = keyEnd;
+			keyStart = keyEnd + 1;
 		}
 		return results;
 	}
