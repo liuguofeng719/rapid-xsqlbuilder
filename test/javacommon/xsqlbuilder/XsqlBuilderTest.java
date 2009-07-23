@@ -8,6 +8,7 @@ import java.util.Map;
 import javacommon.xsqlbuilder.XsqlBuilder.XsqlFilterResult;
 import javacommon.xsqlbuilder.safesql.EscapeBackslashAndSingleQuotesSafeSqlProcesser;
 import javacommon.xsqlbuilder.safesql.EscapeSingleQuotesSafeSqlProcesser;
+import javacommon.xsqlbuilder.testbean.BlogInfo;
 import junit.framework.TestCase;
 
 
@@ -238,4 +239,23 @@ public class XsqlBuilderTest extends TestCase {
 		 assertEquals("select * from user where 1=1  and username = :username ", result.getXsql());
 	}
 	
+	public void testBean() {
+		// 清晰的sql语句,/~ ~/为一个语法块
+		 String sql= "select * from user where 1=1 " 
+		         + "/~ and title = {title} ~/"   
+		         + "/~ and sex = {sex} ~/"   
+		         + "/~ and salary = {salary} ~/"   
+		         + "/~ and age = [age] ~/";   
+		 
+		 // filters为参数
+		 BlogInfo info = new BlogInfo();
+		 info.setTitle("java");
+		 XsqlFilterResult result = new XsqlBuilder().generateHql(sql,info);
+		 
+		 assertEquals("select * from user where 1=1  and title = :title  and sex = :sex  and age = 0 ", result.getXsql());
+		 assertTrue(result.getAcceptedFilters().containsKey("sex"));
+		 assertTrue(result.getAcceptedFilters().containsKey("title"));
+		 assertFalse(result.getAcceptedFilters().containsKey("age"));
+
+	}
 }

@@ -1,5 +1,6 @@
 package javacommon.xsqlbuilder;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
 import javacommon.datamodifier.DataModifierUtils;
 import javacommon.xsqlbuilder.safesql.DirectReturnSafeSqlProcesser;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -121,7 +123,7 @@ public class XsqlBuilder {
 	 * @param filters 过滤器,Map的key必须为String类型
 	 * @return 
 	 */
-	public XsqlFilterResult generateSql(String sourceXsql, Map filters) {
+	public XsqlFilterResult generateSql(String sourceXsql, Object filters) {
 		XsqlFilterResult sfr = applyFilters(sourceXsql, filters);
 		return new XsqlFilterResult(replaceKeyMaskWithString(sfr.getXsql(), sfr.getAcceptedFilters(),"?"),sfr.getAcceptedFilters());
 	}
@@ -131,7 +133,7 @@ public class XsqlBuilder {
 	 * @param filters 过滤器,Map的key必须为String类型
 	 * @return 
 	 */
-	public XsqlFilterResult generateHql(String sourceXsql, Map filters) {
+	public XsqlFilterResult generateHql(String sourceXsql, Object filters) {
 		
 		XsqlFilterResult sfr = applyFilters(sourceXsql, filters);
 		
@@ -182,13 +184,13 @@ public class XsqlBuilder {
 	 * @param filters 过滤器,key必需为String类型
 	 * @return
 	 */
-	public XsqlFilterResult applyFilters(String xsql, Map filters) {
+	public XsqlFilterResult applyFilters(String xsql, Object filters) {
 		return applyFilters(new StringBuffer(xsql), filters);
 	}
 	/**
 	 * @see #applyFilters(String, Map)
 	 */
-	private XsqlFilterResult applyFilters(StringBuffer xsql, Map filters) {
+	private XsqlFilterResult applyFilters(StringBuffer xsql, Object filters) {
 		LinkedHashMap acceptedFilters = new LinkedHashMap();
 		for (int i = 0, end = 0, start = xsql.indexOf("/~"); ((start = xsql.indexOf("/~", end)) >= 0); i++) {
 			end = xsql.indexOf("~/", start);
@@ -216,33 +218,33 @@ public class XsqlBuilder {
 		return new XsqlFilterResult(xsql.toString(),acceptedFilters);
 	}
 
-	private String mergeMarkKeysIntoAcceptedFilters(Map filters, Map acceptedFilters, KeyMetaDatas metadatas, String segment) {
+	private String mergeMarkKeysIntoAcceptedFilters(Object filters, Map acceptedFilters, KeyMetaDatas metadatas, String segment) {
 		for(int n = 0; n < metadatas.markKeys.size(); n++) {
 			String dataModifierExpression = (String)metadatas.markKeys.get(n);
 			String key = DataModifierUtils.getModifyVariable(dataModifierExpression);
-			Object value = DataModifierUtils.modify(dataModifierExpression, filters.get(key));
+			Object value = DataModifierUtils.modify(dataModifierExpression, ObjectUtils.getSimpleProperty(filters, key));
 			acceptedFilters.put(key, value);
 			segment = StringUtils.replace(segment, markKeyStartChar+dataModifierExpression+markKeyEndChar, markKeyStartChar+key+markKeyEndChar);
 		}
 		return segment;
 	}
 	
-	private String replaceReplaceKeysWithValues(Map filters, List replaceKeys, String segment) {
+	private String replaceReplaceKeysWithValues(Object filters, List replaceKeys, String segment) {
 		for(int n = 0; n < replaceKeys.size(); n++) {
 			String dataModifierExpression = (String)replaceKeys.get(n);
 			String key = DataModifierUtils.getModifyVariable(dataModifierExpression);
-			String value = DataModifierUtils.modify(dataModifierExpression, filters.get(key)).toString();
+			String value = DataModifierUtils.modify(dataModifierExpression, ObjectUtils.getSimpleProperty(filters, key)).toString();
 			value = safeSqlProcesser.process(value);
 			segment = StringUtils.replace(segment, replaceKeyStartChar+dataModifierExpression+replaceKeyEndChar, value);
 		}
 		return segment;
 	}
 	
-	private boolean isAcceptedAllKeys(Map filters, List keys) {
+	private boolean isAcceptedAllKeys(Object filters, List keys) {
 		for(int n = 0; n < keys.size(); n++) {
 			String dataModifierExpression = (String)keys.get(n);
 			String key = DataModifierUtils.getModifyVariable(dataModifierExpression);
-			Object value = filters.get(key);
+			Object value = ObjectUtils.getSimpleProperty(filters,key);
 			if(!isValuePopulated(value, isRemoveEmptyString)) {
 				return false;
 			}
