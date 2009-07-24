@@ -118,34 +118,6 @@ public class XsqlBuilder {
 	}
 
 	/**
-	 * 根据sourceXsql动态构造SQL语句,将{key}替换为?,[key]替换为key value
-	 * @param sourceXsql 
-	 * @param filters 过滤器,Map的key必须为String类型
-	 * @return 
-	 */
-	public XsqlFilterResult generateSql(String sourceXsql, Object filters) {
-		XsqlFilterResult sfr = applyFilters(sourceXsql, filters);
-		return new XsqlFilterResult(replaceKeyMaskWithString(sfr.getXsql(), sfr.getAcceptedFilters(),"?"),sfr.getAcceptedFilters());
-	}
-	/**
-	 * 根据sourceXsql动态构造Hibernate的hql语句,将{key}替换为:key,[key]替换为key value
-	 * @param sourceXsql 
-	 * @param filters 过滤器,Map的key必须为String类型
-	 * @return 
-	 */
-	public XsqlFilterResult generateHql(String sourceXsql, Object filters) {
-		
-		XsqlFilterResult sfr = applyFilters(sourceXsql, filters);
-		
-        String resultHql = sfr.getXsql();
-		for(Iterator it = sfr.getAcceptedFilters().keySet().iterator();it.hasNext();){
-			Object key = it.next();
-			resultHql = StringUtils.replace(resultHql, markKeyStartChar+key+markKeyEndChar, ":"+key);
-		}
-        
-		return new XsqlFilterResult(resultHql,sfr.getAcceptedFilters());
-	}
-	/**
 	 * 将xsql中的{key}标志替换为一个字符串
 	 * @param xsql 格式: select * from user where username = {username}
 	 * @param acceptedFilters 过滤器
@@ -175,17 +147,75 @@ public class XsqlBuilder {
 		}
 		return xsql;
 	}
+	
+	/**
+	 * 根据sourceXsql动态构造SQL语句,将{key}替换为?,[key]替换为key value
+	 * @param sourceXsql 
+	 * @param filters 过滤器,可以为Object or Map
+	 * @return 
+	 */
+	public XsqlFilterResult generateSql(String sourceXsql, Object filters) {
+		XsqlFilterResult sfr = applyFilters(sourceXsql, filters);
+		return new XsqlFilterResult(replaceKeyMaskWithString(sfr.getXsql(), sfr.getAcceptedFilters(),"?"),sfr.getAcceptedFilters());
+	}
+	
+	public XsqlFilterResult generateSql(String sourceXsql, Map filters) {
+		return generateSql(sourceXsql,(Object)filters);
+	}
+	
+	public XsqlFilterResult generateSql(String sourceXsql, Map filtersMap,Object filtersBean) {
+		return generateSql(sourceXsql,new MapAndObjectHolder(filtersMap,filtersBean));
+	}
+	
+	/**
+	 * 根据sourceXsql动态构造Hibernate的hql语句,将{key}替换为:key,[key]替换为key value
+	 * @param sourceXsql 
+	 * @param filters 过滤器,可以为Object or Map
+	 * @return 
+	 */
+	public XsqlFilterResult generateHql(String sourceXsql, Object filters) {
+		
+		XsqlFilterResult sfr = applyFilters(sourceXsql, filters);
+		
+        String resultHql = sfr.getXsql();
+		for(Iterator it = sfr.getAcceptedFilters().keySet().iterator();it.hasNext();){
+			Object key = it.next();
+			resultHql = StringUtils.replace(resultHql, markKeyStartChar+key+markKeyEndChar, ":"+key);
+		}
+        
+		return new XsqlFilterResult(resultHql,sfr.getAcceptedFilters());
+	}
+	
+	public XsqlFilterResult generateHql(String sourceXsql, Map filters) {
+		return generateHql(sourceXsql,(Object)filters);
+	}
+	
+	public XsqlFilterResult generateHql(String sourceXsql, Map filtersMap,Object filtersBean) {
+		return generateHql(sourceXsql,new MapAndObjectHolder(filtersMap,filtersBean));
+	}
 	/**
 	 * 使用过滤器过滤
 	 * @param xsql 数据格式：select * from user /where ~username={username}~/
 	 * 			其中/~,~/为一个条件的结束与开始标志,{username}为过滤使用的key,key取值为username
 	 * 			如果username在filters作为key存在,则返回结果为select * from user where username={username}
 	 * 			否则过滤后结果为select * from user
-	 * @param filters 过滤器,key必需为String类型
+	 * @param filters 过滤器,可以为Object or Map
 	 * @return
 	 */
 	public XsqlFilterResult applyFilters(String xsql, Object filters) {
 		return applyFilters(new StringBuffer(xsql), filters);
+	}
+	
+	public XsqlFilterResult applyFilters(String xsql, Map filters) {
+		return applyFilters(xsql, (Object)filters);
+	}
+	
+	public XsqlFilterResult applyFilters(String xsql, Map filtersMap,Object filtersBean) {
+		return applyFilters(new StringBuffer(xsql), filtersMap,filtersBean);
+	}
+	
+	private XsqlFilterResult applyFilters(StringBuffer xsql, Map filtersMap,Object filtersBean) {
+		return applyFilters(xsql,new MapAndObjectHolder(filtersMap,filtersBean));
 	}
 	/**
 	 * @see #applyFilters(String, Map)
