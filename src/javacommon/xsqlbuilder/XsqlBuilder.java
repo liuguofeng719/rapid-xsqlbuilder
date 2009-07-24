@@ -222,7 +222,7 @@ public class XsqlBuilder {
 		for(int n = 0; n < metadatas.markKeys.size(); n++) {
 			String dataModifierExpression = (String)metadatas.markKeys.get(n);
 			String key = DataModifierUtils.getModifyVariable(dataModifierExpression);
-			Object value = DataModifierUtils.modify(dataModifierExpression, ObjectUtils.getSimpleProperty(filters, key));
+			Object value = DataModifierUtils.modify(dataModifierExpression, ObjectUtils.getProperty(filters, key));
 			acceptedFilters.put(key, value);
 			segment = StringUtils.replace(segment, markKeyStartChar+dataModifierExpression+markKeyEndChar, markKeyStartChar+key+markKeyEndChar);
 		}
@@ -233,7 +233,7 @@ public class XsqlBuilder {
 		for(int n = 0; n < replaceKeys.size(); n++) {
 			String dataModifierExpression = (String)replaceKeys.get(n);
 			String key = DataModifierUtils.getModifyVariable(dataModifierExpression);
-			String value = DataModifierUtils.modify(dataModifierExpression, ObjectUtils.getSimpleProperty(filters, key)).toString();
+			String value = DataModifierUtils.modify(dataModifierExpression, ObjectUtils.getProperty(filters, key)).toString();
 			value = safeSqlProcesser.process(value);
 			segment = StringUtils.replace(segment, replaceKeyStartChar+dataModifierExpression+replaceKeyEndChar, value);
 		}
@@ -244,7 +244,7 @@ public class XsqlBuilder {
 		for(int n = 0; n < keys.size(); n++) {
 			String dataModifierExpression = (String)keys.get(n);
 			String key = DataModifierUtils.getModifyVariable(dataModifierExpression);
-			Object value = ObjectUtils.getSimpleProperty(filters,key);
+			Object value = ObjectUtils.getProperty(filters,key);
 			if(!isValuePopulated(value, isRemoveEmptyString)) {
 				return false;
 			}
