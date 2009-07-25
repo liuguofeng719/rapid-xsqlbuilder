@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 
 class ObjectUtils {
 
@@ -13,7 +14,7 @@ class ObjectUtils {
 			return map.get(key);
 		}else {
 			try {
-				return BeanUtils.getProperty(obj, key);
+				return PropertyUtils.getProperty(obj, key);
 			} catch (IllegalAccessException e) {
 				throw new IllegalStateException("cannot get property value by property:"+key+" on object class:"+obj.getClass(),e);
 			} catch (InvocationTargetException e) {
