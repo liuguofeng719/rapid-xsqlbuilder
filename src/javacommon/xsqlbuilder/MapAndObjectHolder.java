@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 
 class MapAndObjectHolder implements Map {
 	Map map;
@@ -25,7 +26,7 @@ class MapAndObjectHolder implements Map {
 
 		if (result == null && bean != null && key instanceof String) {
 			try {
-				result = BeanUtils.getProperty(bean, (String) key);
+				result = PropertyUtils.getProperty(bean, (String) key);
 			} catch (IllegalAccessException e) {
 				throw new IllegalStateException(
 						"cannot get property value by property:" + key
