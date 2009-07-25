@@ -33,10 +33,6 @@ class MapAndObjectHolder implements Map {
 		if (result == null && bean != null && key instanceof String) {
 			String prop = (String)key;
 			
-			if(ERROR_METHOD_PATTERN.matcher(prop).matches()) {
-				return null;
-			}
-			
 			try {
 				result = PropertyUtils.getProperty(bean, prop);
 			} catch (IllegalAccessException e) {
@@ -48,7 +44,9 @@ class MapAndObjectHolder implements Map {
 						"cannot get property value by property:" + key
 								+ " on class:" + bean.getClass(), e);
 			} catch (NoSuchMethodException e) {
-				return null;
+				throw new IllegalStateException(
+						"cannot get property value by property:" + key
+								+ " on class:" + bean.getClass(), e);
 			}
 		}
 		return result;
