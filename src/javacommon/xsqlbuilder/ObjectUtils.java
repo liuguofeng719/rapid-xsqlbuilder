@@ -9,20 +9,25 @@ import org.apache.commons.beanutils.PropertyUtils;
 class ObjectUtils {
 
 	public static Object getProperty(Object obj,String key) {
-		if(obj instanceof Map) {
-			Map map = (Map)obj;
-			return map.get(key);
-		}else {
-			try {
-				return PropertyUtils.getProperty(obj, key);
-			} catch (IllegalAccessException e) {
-				throw new IllegalStateException("cannot get property value by property:"+key+" on object class:"+obj.getClass(),e);
-			} catch (InvocationTargetException e) {
-				throw new IllegalStateException("cannot get property value by property:"+key+" on object class:"+obj.getClass(),e);
-			} catch (NoSuchMethodException e) {
-				throw new IllegalStateException("cannot get property value by property:"+key+" on object class:"+obj.getClass(),e);
-			}
+		try {
+			return PropertyUtils.getProperty(obj, key);
+		} catch (Exception e) {
+			return null;
 		}
+//		if(obj instanceof Map) {
+//			Map map = (Map)obj;
+//			return map.get(key);
+//		}else {
+//			try {
+//				return PropertyUtils.getProperty(obj, key);
+//			} catch (IllegalAccessException e) {
+//				throw new IllegalStateException("cannot get property value by property:"+key+" on object class:"+obj.getClass(),e);
+//			} catch (InvocationTargetException e) {
+//				throw new IllegalStateException("cannot get property value by property:"+key+" on object class:"+obj.getClass(),e);
+//			} catch (NoSuchMethodException e) {
+//				throw new IllegalStateException("cannot get property value by property:"+key+" on object class:"+obj.getClass(),e);
+//			}
+//		}
 	}
 	
 }

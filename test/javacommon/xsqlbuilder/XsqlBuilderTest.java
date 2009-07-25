@@ -293,4 +293,24 @@ public class XsqlBuilderTest extends TestCase {
 		 assertFalse(result.getAcceptedFilters().containsKey("age"));
 
 	}
+	
+	public void testMapAndObjectHolder2() {
+		// 清晰的sql语句,/~ ~/为一个语法块
+		 String sql= "select * from user where 1=1 " 
+			 	 + "/~ and title = {title} ~/"   
+		         + "/~ and salary = {2009salary} ~/" ;  
+		 
+		 // filters为参数
+		 BlogInfo info = new BlogInfo();
+		 info.setTitle("java");
+		 Map hashMap = new HashMap();
+		 hashMap.put("mapKey", "2009_mapKey");
+		 MapAndObjectHolder holder = new MapAndObjectHolder(hashMap,info);
+		 
+		 XsqlFilterResult result = new XsqlBuilder().generateHql(sql,holder);
+		 
+		 assertEquals("select * from user where 1=1  and title = :title ", result.getXsql());
+		 assertTrue(result.getAcceptedFilters().containsKey("title"));
+
+	}
 }
