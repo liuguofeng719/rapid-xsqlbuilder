@@ -25,26 +25,28 @@ class MapAndObjectHolder implements Map {
 		if (map != null) {
 			result = map.get(key);
 		}
-
+		
+		if(bean != null && bean instanceof Map) {
+			result = ((Map)bean).get(key);
+		}
+		
 		if (result == null && bean != null && key instanceof String) {
-			String property = (String)key;
-			if(ERROR_METHOD_PATTERN.matcher(property).matches()) {
+			String prop = (String)key;
+			
+			if(ERROR_METHOD_PATTERN.matcher(prop).matches()) {
 				return null;
 			}
+			
 			try {
-				result = PropertyUtils.getProperty(bean, property);
+				result = PropertyUtils.getProperty(bean, prop);
 			} catch (IllegalAccessException e) {
-				throw new IllegalStateException(
-						"cannot get property value by property:" + key
-								+ " on class:" + bean.getClass(), e);
+				return null;
 			} catch (InvocationTargetException e) {
 				throw new IllegalStateException(
 						"cannot get property value by property:" + key
 								+ " on class:" + bean.getClass(), e);
 			} catch (NoSuchMethodException e) {
-				throw new IllegalStateException(
-						"cannot get property value by property:" + key
-								+ " on class:" + bean.getClass(), e);
+				return null;
 			}
 		}
 		return result;
