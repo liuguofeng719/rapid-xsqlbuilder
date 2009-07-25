@@ -44,9 +44,7 @@ class MapAndObjectHolder implements Map {
 						"cannot get property value by property:" + key
 								+ " on class:" + bean.getClass(), e);
 			} catch (NoSuchMethodException e) {
-				throw new IllegalStateException(
-						"cannot get property value by property:" + key
-								+ " on class:" + bean.getClass(), e);
+				return null;
 			}
 		}
 		return result;
