@@ -27,7 +27,7 @@ class MapAndObjectHolder implements Map {
 		}
 		
 		if(result == null && bean != null && bean instanceof Map) {
-			result = ((Map)bean).get(key);
+			return ((Map)bean).get(key);
 		}
 		
 		if (result == null && bean != null && key instanceof String) {
