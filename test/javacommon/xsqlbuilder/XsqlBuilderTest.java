@@ -307,10 +307,14 @@ public class XsqlBuilderTest extends TestCase {
 		 hashMap.put("mapKey", "2009_mapKey");
 		 MapAndObjectHolder holder = new MapAndObjectHolder(hashMap,info);
 		 
+		 try {
 		 XsqlFilterResult result = new XsqlBuilder().generateHql(sql,holder);
-		 
-		 assertEquals("select * from user where 1=1  and title = :title ", result.getXsql());
-		 assertTrue(result.getAcceptedFilters().containsKey("title"));
+		 fail(); 
+		 }catch(Exception e) {
+			 
+		 }
+//		 assertEquals("select * from user where 1=1  and title = :title ", result.getXsql());
+//		 assertTrue(result.getAcceptedFilters().containsKey("title"));
 
 	}
 }
