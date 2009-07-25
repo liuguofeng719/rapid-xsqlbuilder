@@ -239,6 +239,16 @@ public class XsqlBuilderTest extends TestCase {
 		 assertEquals("select * from user where 1=1  and username = :username ", result.getXsql());
 	}
 	
+	public void testWithNullArguments() {
+		try {
+			XsqlFilterResult result = new XsqlBuilder().generateHql(null,new HashMap());
+		}catch(IllegalArgumentException e) {
+			
+		}
+		XsqlFilterResult result = new XsqlBuilder().generateHql("",null);
+		result = new XsqlBuilder().generateHql("",null,null);
+	}
+	
 	public void testBean() {
 		// 清晰的sql语句,/~ ~/为一个语法块
 		 String sql= "select * from user where 1=1 " 

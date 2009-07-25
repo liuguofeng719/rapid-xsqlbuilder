@@ -203,6 +203,7 @@ public class XsqlBuilder {
 	 * @return
 	 */
 	public XsqlFilterResult applyFilters(String xsql, Object filters) {
+		if(xsql == null) throw new IllegalArgumentException("'sql' must be not null");
 		return applyFilters(new StringBuffer(xsql), filters);
 	}
 	
