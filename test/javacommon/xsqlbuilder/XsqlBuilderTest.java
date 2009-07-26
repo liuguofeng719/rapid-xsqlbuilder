@@ -143,6 +143,8 @@ public class XsqlBuilderTest extends TestCase {
 		String sql = "select * from user where 1=1"
 			+"/~ and username = {username}~/"
 			+"/~ and pwd = '[password]'~/"
+			+"/~ and pwd = '[23423password]'~/"
+			+"/~ and pwd = '[error_password]'~/"
 			+"/~ and age = {age}~/";
 		long startTime = System.currentTimeMillis();
 		Map filters = new HashMap();
@@ -150,16 +152,17 @@ public class XsqlBuilderTest extends TestCase {
 		filters.put("password", "123");
 		filters.put("age", "age");
 		String result = null;
-		
+		BlogInfo info = new BlogInfo();
 		int count = 100000;
 		for(int i = 0; i < count; i++) {
-			result = builder.generateSql(sql, filters).getXsql();
+			result = builder.generateSql(sql, filters,info).getXsql();
 		}
 		long endTime = System.currentTimeMillis();
 		long costTime = endTime-startTime;
 		System.out.println("[PerformenceTest],count:"+100000+" costTime:"+costTime+"ms");
 		
 		assertEquals(result,"select * from user where 1=1 and username = ? and pwd = '123' and age = ?");
+		assertTrue("pasted [PerformenceTest],count:100000 costTime:4938ms",costTime < 60000);
 	}
 	
 	public void testGenerateSql2() {
@@ -242,11 +245,13 @@ public class XsqlBuilderTest extends TestCase {
 	public void testWithNullArguments() {
 		try {
 			XsqlFilterResult result = new XsqlBuilder().generateHql(null,new HashMap());
+			fail();
 		}catch(IllegalArgumentException e) {
 			
 		}
 		XsqlFilterResult result = new XsqlBuilder().generateHql("",null);
 		result = new XsqlBuilder().generateHql("",null,null);
+		result = new XsqlBuilder().generateHql("",new HashMap(),null);
 	}
 	
 	public void testBean() {
@@ -283,9 +288,8 @@ public class XsqlBuilderTest extends TestCase {
 		 info.setTitle("java");
 		 Map hashMap = new HashMap();
 		 hashMap.put("mapKey", "2009_mapKey");
-		 MapAndObjectHolder holder = new MapAndObjectHolder(hashMap,info);
 		 
-		 XsqlFilterResult result = new XsqlBuilder().generateHql(sql,holder);
+		 XsqlFilterResult result = new XsqlBuilder().generateHql(sql,hashMap,info);
 		 
 		 assertEquals("select * from user where 1=1  and title = :title  and sex = :sex  and age = 0  and mapKey = 2009_mapKey ", result.getXsql());
 		 assertTrue(result.getAcceptedFilters().containsKey("sex"));
@@ -305,9 +309,8 @@ public class XsqlBuilderTest extends TestCase {
 		 info.setTitle("java");
 		 Map hashMap = new HashMap();
 		 hashMap.put("mapKey", "2009_mapKey");
-		 MapAndObjectHolder holder = new MapAndObjectHolder(hashMap,info);
 		 
-		 XsqlFilterResult result = new XsqlBuilder().generateHql(sql,holder);
+		 XsqlFilterResult result = new XsqlBuilder().generateHql(sql,hashMap,info);
 		 assertEquals("select * from user where 1=1  and title = :title ", result.getXsql());
 		 assertTrue(result.getAcceptedFilters().containsKey("title"));
 

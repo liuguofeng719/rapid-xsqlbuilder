@@ -10,6 +10,7 @@ import java.util.Map;
 import javacommon.datamodifier.DataModifierUtils;
 import javacommon.xsqlbuilder.safesql.DirectReturnSafeSqlProcesser;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -164,7 +165,7 @@ public class XsqlBuilder {
 	}
 	
 	public XsqlFilterResult generateSql(String sourceXsql, Map filtersMap,Object filtersBean) {
-		return generateSql(sourceXsql,new MapAndObjectHolder(filtersMap,filtersBean));
+		return generateSql(sourceXsql,ObjectUtils.putAllAndDescribe(filtersMap,filtersBean));
 	}
 	
 	/**
@@ -191,7 +192,7 @@ public class XsqlBuilder {
 	}
 	
 	public XsqlFilterResult generateHql(String sourceXsql, Map filtersMap,Object filtersBean) {
-		return generateHql(sourceXsql,new MapAndObjectHolder(filtersMap,filtersBean));
+		return generateHql(sourceXsql,ObjectUtils.putAllAndDescribe(filtersMap,filtersBean));
 	}
 	/**
 	 * 使用过滤器过滤
@@ -216,7 +217,7 @@ public class XsqlBuilder {
 	}
 	
 	private XsqlFilterResult applyFilters(StringBuffer xsql, Map filtersMap,Object filtersBean) {
-		return applyFilters(xsql,new MapAndObjectHolder(filtersMap,filtersBean));
+		return applyFilters(xsql,ObjectUtils.putAllAndDescribe(filtersMap,filtersBean));
 	}
 	/**
 	 * @see #applyFilters(String, Map)
