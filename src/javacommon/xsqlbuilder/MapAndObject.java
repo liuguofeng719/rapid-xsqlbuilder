@@ -113,7 +113,7 @@ class MapAndObject implements Map{
 				if(pd == null || pd.getReadMethod() == null) {
 					return null;
 				}
-				return pd.getReadMethod().invoke(bean);
+				return pd.getReadMethod().invoke(bean,new Object[]{});
 			} catch (IllegalAccessException e) {
 				throw new IllegalStateException(
 						"cannot get property value by property:" + propertyName + " on class:" + bean.getClass(), e);
