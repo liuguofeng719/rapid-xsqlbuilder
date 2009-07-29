@@ -162,7 +162,7 @@ public class XsqlBuilderTest extends TestCase {
 		System.out.println("[PerformenceTest],count:"+100000+" costTime:"+costTime+"ms");
 		
 		assertEquals(result,"select * from user where 1=1 and username = ? and pwd = '123' and age = ?");
-		assertTrue("pasted [PerformenceTest],count:100000 costTime:4938ms",costTime < 60000);
+		assertTrue("[PerformenceTest],count:100000 costTime:2375ms",costTime < 3000);
 	}
 	
 	public void testGenerateSql2() {
